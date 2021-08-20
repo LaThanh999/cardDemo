@@ -1,17 +1,16 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <v-box-output />
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import VBoxOutput from "./components/vBoxOutput.vue";
 
 export default {
   name: "App",
   components: {
-    HelloWorld,
+    VBoxOutput,
   },
 };
 </script>
