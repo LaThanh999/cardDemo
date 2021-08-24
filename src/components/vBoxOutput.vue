@@ -4,7 +4,7 @@
       v-if="count == 0 || !count"
       class="txt"
       style="width: 300px"
-      @click="count = +1"
+      @click="clickPlus()"
     >
       THÊM VÀO GIỎ
     </p>
