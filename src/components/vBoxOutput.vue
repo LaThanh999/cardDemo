@@ -1,57 +1,106 @@
 <template>
-  <div class="detail-btn">
-    <a href="javascript:void(0)" class="btn btn-addcart" style="width: 100%">
-      <p
-        v-if="product.count === 0 || !product.count"
-        class="txt"
-        style="width: 300px"
-        @click="product.count = +1"
-      >
-        THÊM VÀO GIỎ
-      </p>
-      <div v-else class="qtySelector" style="display: flex">
-        <span
-          class="decreaseQty"
-          v-bind:class="{ display: product.count == product.min }"
-          @click="clickMinus()"
-        ></span>
-        <input type="text" v-model="product.count" class="qtyValue" />
-        <span
-          class="increaseQty"
-          v-bind:class="{ display: product.count == product.max }"
-          @click="clickPlus()"
-        ></span>
-      </div>
-    </a>
-  </div>
+  <span class="btn btn-addcart" style="width: 100%">
+    <p
+      v-if="count == 0 || !count"
+      class="txt"
+      style="width: 300px"
+      @click="count = +1"
+    >
+      THÊM VÀO GIỎ
+    </p>
+    <div v-else class="qtySelector" style="display: flex">
+      <span
+        class="decreaseQty"
+        v-bind:class="{ display: count == min }"
+        @click="clickMinus()"
+      ></span>
+      <input type="text" v-model="count" class="qtyValue" />
+      <span
+        class="increaseQty"
+        v-bind:class="{ display: count == max }"
+        @click="clickPlus()"
+      ></span>
+    </div>
+  </span>
 </template>
 
 <script>
 export default {
   data: () => ({
+    count: null,
+    min: 0,
+    max: null,
     product: {
-      count: null,
-      min: null,
-      max: null,
+      ProductId: null,
+      ProductCode: "",
+      ProductType: null,
+      IsOwQuantity: false,
+      IsCoupleWatch: false,
+      IndexGiftAdds: [],
+    },
+    RequestChooseServiceDetail: {
+      IsTransContact: false,
+      IsUserManual: false,
+      ProductId: 123,
+      LstProductCodeMoreColors: "",
+      BringProductsName: "",
     },
   }),
-  watch: {
-    "product.count"() {
-      //console.log(value); // or call API send $emit
-    },
-  },
   mounted() {
-    const { count, min, max } = window.dataProduct;
-    this.product.count = count;
-    this.product.min = min;
-    this.product.max = max;
+    const { items_count, items_detail } = window.cart;
+    this.product = { ...window.product };
+    this.count = items_count;
+    this.max = items_detail[0]?.maxQuantity;
   },
   methods: {
     clickMinus() {
-      if (this.product.count > this.product.min) this.product.count -= 1; // or call API send $emit
+      this.product.Quantity = -1;
+      this.product.ProductCode = this.product.ProductCode.toString();
+      const data = {
+        RequestProductAdd: [{ ...this.product }],
+        RequestChooseServiceDetail: this.RequestChooseServiceDetail,
+      };
+      if (this.count > this.min) {
+        this.api
+          .AddProduct(data)
+          .then(({ data }) => {
+            if (data.code != 0) {
+              alert(data.message);
+              return;
+            }
+            this.count -= 1;
+            console.log(data);
+            window.GetQuanatyCart(this.count);
+          })
+          .catch((err) => {
+            console.log(err.response.errormessage);
+          });
+      }
     },
     clickPlus() {
-      if (this.product.count < this.product.max) this.product.count += 1; // or call API send $emit
+      this.product.Quantity = 1;
+      this.product.ProductCode = this.product.ProductCode.toString();
+      const data = {
+        RequestProductAdd: [{ ...this.product }],
+        RequestChooseServiceDetail: this.RequestChooseServiceDetail,
+      };
+      if (this.count < this.max) {
+        this.api
+          .AddProduct(data)
+          .then(({ data }) => {
+            if (data.code != 0) {
+              alert(data.message);
+              return;
+            }
+            this.count += 1;
+            console.log(data);
+            window.GetQuanatyCart(this.count);
+          })
+          .catch((err) => {
+            console.log("errr");
+            console.log(err.response);
+          });
+      }
     },
   },
 };
